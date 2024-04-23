@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Celeberate</title>
+        
+        
+        <style>
+            .parent-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+            }
+
+            .container {
+                display: flex;
+                position: relative;
+                width: 60%;
+            }
+
+            .undo-btn, .redo-btn {
+                margin: 10px;
+                padding: 8px;
+                background-color: #f0f0f0;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .image-section {
+                position: relative;
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            }
+
+            .image-container {
+                position: relative;
+            }
+
+            .image-container img {
+                max-width: 100%;
+                height: 250px;
+            }
+
+            #text-box {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 10px;
+                border-radius: 5px;
+            }
+
+            .button-section {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                margin-top: 20px;
+            
+            }
+            .button-section select {
+                width: 200px;
+                margin-bottom: 20px;
+                font-size: 16px;
+                
+                
+
+            }
+            .title-label {
+                font-size: 16px;
+            
+            
+            }
+
+            .small-btn {
+                width: 180px;
+                font-size: 16px;
+                padding: 10px;
+                margin: 5px 0;
+                background-color: #f0f0f0;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .small-btn:hover {
+                background-color: #e0e0e0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="parent-container">
+            <div class="container">
+                <div class="top-left-section">
+                    <button class="undo-btn" onclick="undo()">Undo ↶</button>
+                    <button class="redo-btn" onclick="redo()">Redo ↷</button>
+                </div>
+                <div class="image-section">
+                    <div class="image-container">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVb3O2eJH-Dnm7hT_I7w7_HPALOXOdUTND3g&usqp=CAU" alt="Background Image">
+                        <div id="text-box" contenteditable="true">Write text here</div>
+                    </div>
+                </div>
+                <div class="button-section">
+                    
+                    <label  class="title-label">Font-size</label>
+                    <select id="fontSize" onchange="FontSize()">
+                        <option value="12">Small</option>
+                        <option value="18">Medium</option>
+                        <option value="24">Large</option>
+                    </select>
+                    <label class="title-label">Font-family</label>
+                    <select id="fontFamily" onchange="FontFamily()">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Trebuchet MS">Trebuchet MS</option>
+                    </select>
+                    <label class="title-label">Color</label>
+                    <select id="textColor" onchange="TextColor()">
+                        <option value="black">Black</option>
+                        <option value="red">Red</option>
+                        <option value="blue">Blue</option>
+                        <option value="Yellow">Yellow</option>
+                        <option value="Green">Green</option>
+                        <option value="Pink">Pink</option>
+                        <option value="Orange">Orange</option>
+                        
+                    </select>
+                    <button class="small-btn" onclick="addMoreText()">Additional Text</button>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        
+        
+        let undoBox = [];
+        let redoBox = [];
+
+        function FontSize() {
+            const newSize = document.getElementById('fontSize').value;
+            document.getElementById('text-box').style.fontSize = newSize + 'px';
+            saveState();
+        }
+
+        function FontFamily() {
+            const newFont = document.getElementById('fontFamily').value;
+            document.getElementById('text-box').style.fontFamily = newFont;
+            saveState();
+        }
+
+        function TextColor() {
+            const newColor = document.getElementById('textColor').value;
+            document.getElementById('text-box').style.color = newColor;
+            saveState();
+        }
+
+        function addMoreText() {
+            const newText = prompt("Enter additional text:");
+            if (newText) {
+                const textBox = document.getElementById('text-box');
+                const currentText = textBox.innerHTML.trim();
+                if(currentText !== ''){
+                    textBox.innerHTML = currentText + ' ' + newText;
+                } else {
+                    textBox.innerHTML = newText;
+                }
+                
+                saveState();
+            }
+        }
+
+        function saveState() {
+            const currentState = document.getElementById('text-box').innerHTML;
+            undoBox.push(currentState);
+        }
+
+        function undo() {
+            if (undoBox.length > 0) {
+                const currentState = document.getElementById('text-box').innerHTML;
+                redoBox.push(currentState);
+                const previousState = undoBox.pop();
+                document.getElementById('text-box').innerHTML = previousState;
+            }
+        }
+
+        function redo() {
+            if (redoBox.length > 0) {
+                const currentState = document.getElementById('text-box').innerHTML;
+                undoBox.push(currentState);
+                const nextState = redoBox.pop();
+                document.getElementById('text-box').innerHTML = nextState;
+            }
+        }
+        document.getElementById('text-box').addEventListener('click', function(){
+            var imageContainer = document.querySelector('.image-container');
+            var imageRect = imageContainer.getBoundingClientRect();
+            var containerRect = imageContainer.parentElement.getBoundingClientRect();
+            var minX = imageRect.left - containerRect.left;
+            var maxX = imageRect.right - containerRect.left - this.clientWidth;
+            var minY = imageRect.top - containerRect.top;
+            var maxY = imageRect.bottom - containerRect.top - this.clientHeight;
+            var positionX = Math.random() * (maxX - minX) + minX;
+            var positionY = Math.random() * (maxY - minY) + minY;
+            this.style.left = positionX + 'px';
+            this.style.top = positionY + 'px';
+        });
+    </script>
+</html>
